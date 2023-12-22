@@ -59,4 +59,23 @@ export class UserController {
     return await this.userService.signIn(signInDto);
   }
 
+ 
+  @Public()
+  @Post("verifySignIn")
+  async verifySignIn(
+    @Body() request: VerifySignInAndUpRequestDto
+  ): Promise<any> {
+
+    this.logger.debug('started verifySignIn() ', UserController.name);
+
+    let verifySignInDto = new VerifySignInAndUpRequestDto()
+    verifySignInDto.token = request.token;
+    verifySignInDto.verificationCode = request.verificationCode;
+
+    this.logger.debug("verifySignIn done.");
+    return await this.userService.verifySignIn(verifySignInDto);
+ 
+  }
+
+
 }
