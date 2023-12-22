@@ -1,6 +1,7 @@
 import { Injectable, Inject } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { CreateUserRequestDto, SignInRequestDto, VerifySignInAndUpRequestDto } from "./dto/create-user.dto";
+import { AuthenticatedUserDto } from "src/auth/authenticated-user.dto";
 @Injectable()
 export class UserService {
     constructor(
@@ -8,16 +9,19 @@ export class UserService {
 
     ) { }
 
-    async createUser(user: CreateUserRequestDto) {
-        return this.clientUserService.send("createUser", user);
+    async createUser(userDto: CreateUserRequestDto) {
+        const messagePayload = { userDto };
+        return this.clientUserService.send("createUser", messagePayload);
     }
 
     async verifySignUp(verificationDto: VerifySignInAndUpRequestDto) {
-        return this.clientUserService.send("verifySignUp", verificationDto);
+        const messagePayload = { verificationDto };
+        return this.clientUserService.send("verifySignUp", messagePayload);
     }
 
     async signIn(verificationDto: SignInRequestDto) {
-        return this.clientUserService.send("signIn", verificationDto);
+        const messagePayload = { verificationDto, };
+        return this.clientUserService.send("signIn", messagePayload);
     }
 
 

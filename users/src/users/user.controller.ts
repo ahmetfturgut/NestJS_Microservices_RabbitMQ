@@ -1,5 +1,5 @@
 import { Controller, Body, Inject, Logger, UnauthorizedException } from '@nestjs/common';
-import { Ctx, MessagePattern, RmqContext } from "@nestjs/microservices";
+import { ClientProxy, Ctx, MessagePattern, RmqContext } from "@nestjs/microservices";
 import { UserService } from './user.service';
 import { CreateUserRequestDto } from './dto/create-user.dto';
 import { ApiException } from 'src/_common/api/api.exeptions';
@@ -10,45 +10,50 @@ import { SignInRequestDto, VerifySignInAndUpRequestDto } from './dto/users.reque
 import { UserState } from './enum/user.state';
 import { SignInResponseDto } from './dto/user.response.dto';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { AuthenticatedUserDto } from './dto/authenticated-user.dto';
 
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly authService: AuthService,
-    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+    @Inject("COMMUNICATION_SERVICE") private readonly clientBlogService: ClientProxy,
   ) {
   }
 
   @MessagePattern("createUser")
   async createUser(
-    @Ctx() context: RmqContext,
-    @Body() request: CreateUserRequestDto
+    data: { userDto: CreateUserRequestDto; authenticatedUser: AuthenticatedUserDto },
   ): Promise<any> {
 
-    if (await this.userService.exists({ email: request.email })) {
+    const { userDto, authenticatedUser } = data;
+
+    if (await this.userService.exists({ email: userDto.email })) {
       throw ApiException.buildFromApiError(ApiError.USER_EMAIL_EXISTS);
     }
     let newUser = new User();
-    newUser.email = request.email;
-    newUser.name = request.name;
-    newUser.surname = request.surname;
-    newUser.password = request.password;
+    newUser.email = userDto.email;
+    newUser.name = userDto.name;
+    newUser.surname = userDto.surname;
+    newUser.password = userDto.password;
 
     let user = await this.userService.save(newUser);
     newUser.id = user.id;
     let auth = await this.authService.createVerifySignUpToken(newUser);
-    //TODO email
-    return
+
+    const messagePayload = { emailDto: { verificationCode: auth.verificationCode }, authenticatedUser: auth.user };
+    return this.clientBlogService.send("createUserEmail", messagePayload);
 
   }
 
   @MessagePattern("verifySignUp")
   async verifySignUp(
-    @Ctx() context: RmqContext,
-    @Body() request: VerifySignInAndUpRequestDto
+    data: { verificationDto: VerifySignInAndUpRequestDto; authenticatedUser: AuthenticatedUserDto },
   ): Promise<any> {
 
-    let auth = await this.authService.verifySignUpToken(request.token, request.verificationCode);
+    const { verificationDto, authenticatedUser } = data;
+
+    let auth = await this.authService.verifySignUpToken(verificationDto.token, verificationDto.verificationCode);
     let user = await this.userService.findById(auth.userId)
     user.state = UserState.ACTIVE;
     return await this.userService.update(user);
@@ -57,12 +62,14 @@ export class UserController {
 
   @MessagePattern("signIn")
   async signIn(
-    @Body() request: SignInRequestDto
+    data: { verificationDto: SignInRequestDto; authenticatedUser: AuthenticatedUserDto },
   ): Promise<SignInResponseDto> {
 
     this.logger.debug('started signIn() ', UserController.name);
 
-    let user = await this.userService.getUserByEmail(request.email);
+    const { verificationDto, authenticatedUser } = data;
+
+    let user = await this.userService.getUserByEmail(verificationDto.email);
     if (!user) {
       this.logger.error('user not found. wrong email');
       throw ApiException.buildFromApiError(ApiError.WRONG_EMAIL_OR_PASSWORD);
@@ -73,7 +80,7 @@ export class UserController {
       throw ApiException.buildFromApiError(ApiError.WRONG_EMAIL_OR_PASSWORD);
     }
 
-    let isValidPassword = this.authService.validateUserPassword(user, request.password)
+    let isValidPassword = this.authService.validateUserPassword(user, verificationDto.password)
 
     if (!isValidPassword) {
       this.logger.debug("User password not validated.");
