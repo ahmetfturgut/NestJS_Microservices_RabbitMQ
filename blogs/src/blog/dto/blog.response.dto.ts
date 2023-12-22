@@ -6,4 +6,6 @@ export class GetBlogResponseDto {
     content: Blog["content"];
     image: Blog["image"];
     author: Blog["author"];
+    categories: Blog["categories"];
+    tags: Blog["tags"];
 }

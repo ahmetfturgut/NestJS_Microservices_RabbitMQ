@@ -54,11 +54,33 @@ export class UpdateBlogRequestDto {
     @IsOptional()
     image: string;
 
+    @ApiProperty()
+    @IsArray()
+    @IsNotEmpty()
+    // categories: Category["id"][];
+    categories
+
+    @ApiProperty()
+    @IsArray()
+    @IsNotEmpty()
+    // tags: Tag["id"][];
+    tags
 
 }
 
 
 export class GetBlogRequestDto {
+
+    @ApiProperty()
+    @IsString()
+    @IsNotEmpty()
+    id: string;
+
+
+}
+
+
+export class DeleteBlogRequestDto {
 
     @ApiProperty()
     @IsString()

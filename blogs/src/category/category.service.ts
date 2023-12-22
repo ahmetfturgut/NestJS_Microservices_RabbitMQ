@@ -8,5 +8,8 @@ export class CategoryService extends Service<Category, CategoryDocument, Categor
 
   constructor(protected repository: CategoryRepository) { super(repository) }
 
+  async getCategoriesByIds(ids: Category["id"][]): Promise<Category[]> {
+    return this.repository.getCategoriesByIds(ids);
+  }
 
 }

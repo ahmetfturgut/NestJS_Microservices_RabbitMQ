@@ -8,5 +8,7 @@ export class TagService extends Service<Tag, TagDocument, TagRepository> {
 
   constructor(protected repository: TagRepository) { super(repository) }
 
-
+  async getTagsByIds(ids: Tag["id"][]): Promise<Tag[]> {
+    return this.repository.getTagsByIds(ids);
+  }
 }

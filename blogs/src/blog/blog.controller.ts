@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, UsePipes, Inject } from '@nestjs/common';
+import { Controller, Get, Body, UsePipes, Inject } from '@nestjs/common';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { Logger } from 'winston'; 
+import { Logger } from 'winston';
 import { CreateBlogRequestDto, GetBlogRequestDto, UpdateBlogRequestDto } from './dto/blog.request.dto';
 import { BlogService } from './blog.service';
-import { Blog } from './blog.model'; 
+import { Blog } from './blog.model';
 import { GetBlogResponseDto } from './dto/blog.response.dto';
 import { BlogState } from './enum/blog.state';
 import { ApiException } from '../_common/api/api.exeptions';
@@ -12,11 +12,11 @@ import { CategoryService } from '../category/category.service';
 import { TagService } from '../tag/tag.service';
 import { CategoryState } from '../category/enum/category.state';
 import { TagState } from '../tag/enum/tag.state';
-import { Ctx, MessagePattern, RmqContext } from '@nestjs/microservices';
 import { AuthenticatedUser } from 'src/core/decorators/authenticated-user.decorator';
 import { AuthenticatedUserDto } from 'src/auth/dto/authenticated-user.dto';
+import { MessagePattern } from '@nestjs/microservices';
 
- 
+
 export class BlogController {
     constructor(
         private readonly blogService: BlogService,
@@ -25,28 +25,27 @@ export class BlogController {
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
     ) {
     }
- 
+
     @MessagePattern("createBlog")
     async createBlog(
-        @Ctx() context: RmqContext,
-        @Body() request: CreateBlogRequestDto, 
-        @AuthenticatedUser() authenticatedUser: AuthenticatedUserDto
-    ): Promise<any> { 
-        console.log("geldi")
-        console.log("authenticatedUser",authenticatedUser)
+        data: { blogDto: CreateBlogRequestDto; authenticatedUser: AuthenticatedUserDto },
+    ): Promise<any> {
+
         this.logger.debug('started createBlog()', BlogController.name);
 
+        const { blogDto, authenticatedUser } = data;
+
         let blog = new Blog();
-        blog.title = request.title;
-        blog.author = request.id;
-        blog.content = request.content;
-        blog.image = request.image; 
+        blog.title = blogDto.title;
+        blog.author = authenticatedUser.id;
+        blog.content = blogDto.content;
+        blog.image = blogDto.image;
         blog.categories = [];
         blog.tags = [];
 
         //check category
-        for (let i = 0; i < request.categories.length; i++) {
-            let category = await this.categoryService.findById(request.categories[i]);
+        for (let i = 0; i < blogDto.categories.length; i++) {
+            let category = await this.categoryService.findById(blogDto.categories[i]);
             if (category.state == CategoryState.ACTIVE) {
                 blog.categories.push(category.id);
             }
@@ -59,8 +58,8 @@ export class BlogController {
         //check category
 
         //check tag
-        for (let i = 0; i < request.tags.length; i++) {
-            let tag = await this.tagService.findById(request.tags[i]);
+        for (let i = 0; i < blogDto.tags.length; i++) {
+            let tag = await this.tagService.findById(blogDto.tags[i]);
             if (tag.state == TagState.ACTIVE) {
                 blog.tags.push(tag.id);
             }
@@ -72,116 +71,121 @@ export class BlogController {
         }
         //check tag 
 
-        await this.blogService.save(blog);
+        return await this.blogService.save(blog);
 
-        //Email atılacak
+        //Email atılacak 
+
     }
 
-    // @UsePipes(new ValidationPipe())
-    // @Post("updateBlog")
-    // async updateBlog(
-    //     @Body() request: UpdateBlogRequestDto,
-    //     @AuthenticatedUser() authenticatedUser: AuthenticatedUserDto
-    // ): Promise<any> {
+    @MessagePattern("updateBlog")
+    async updateBlog(
+        data: { blogDto: UpdateBlogRequestDto; authenticatedUser: AuthenticatedUserDto },
+    ): Promise<any> {
 
-    //     this.logger.debug('started updateBlog()', BlogController.name);
-    //     let blog = await this.blogService.findById(request.id);
+        this.logger.debug('started updateBlog()', BlogController.name);
+        const { blogDto: blogDto, authenticatedUser } = data;
+        let blog = await this.blogService.findById(blogDto.id);
 
-    //     if (blog.author == authenticatedUser.id) {
-    //         this.logger.error("You are not authorized.");
-    //         throw ApiException.buildFromApiError(ApiError.NOT_AUTHORIZED);
-    //     }
+        if (blog.author == authenticatedUser.id) {
+            this.logger.error("You are not authorized.");
+            throw ApiException.buildFromApiError(ApiError.NOT_AUTHORIZED);
+        }
 
-    //     blog.title = request.title;
-    //     blog.content = request.content;
-    //     blog.image = request.image;
-    //     blog.author = authenticatedUser.id;
+        blog.title = blogDto.title;
+        blog.content = blogDto.content;
+        blog.image = blogDto.image;
+        blog.author = authenticatedUser.id;
 
-    //     await this.blogService.update(blog);
+        return await this.blogService.update(blog);
 
-    // }
+    }
 
-    // @UsePipes(new ValidationPipe())
-    // @Post("getBlog")
-    // async getBlog(
-    //     @Body() request: GetBlogRequestDto,
-    //     @AuthenticatedUser() authenticatedUser: AuthenticatedUserDto
-    // ): Promise<GetBlogResponseDto> {
+    @MessagePattern("deleteBlog")
+    async deleteBlog(
+        data: { blogDto: UpdateBlogRequestDto; authenticatedUser: AuthenticatedUserDto }
+    ): Promise<any> {
 
-    //     this.logger.debug('started getBlog()', BlogController.name);
+        this.logger.debug('started updateBlog()', BlogController.name);
+        const { blogDto, authenticatedUser } = data;
+        let blog = await this.blogService.findById(blogDto.id);
 
-    //     let blog = await this.blogService.findById(request.id);
-    //     let response = new GetBlogResponseDto();
-    //     response.title = blog.title;
-    //     response.content = blog.content;
-    //     response.image = blog.image;
-    //     response.author = blog.id;
+        if (blog.author != authenticatedUser.id) {
+            this.logger.error("You are not authorized.");
+            throw ApiException.buildFromApiError(ApiError.NOT_AUTHORIZED);
+        }
 
-    //     return response;
-    // }
+        blog.state = BlogState.PASSIVE;
 
-    // @UsePipes(new ValidationPipe())
-    // @Get("getAllUserBlog")
-    // async getAllUserBlog(
-    //     @AuthenticatedUser() authenticatedUser: AuthenticatedUserDto
-    // ): Promise<GetBlogResponseDto[]> {
+        return await this.blogService.update(blog);
 
-    //     this.logger.debug('started getAllUserBlog()', BlogController.name);
+    }
 
-    //     let blogs = await this.blogService.find({ author: authenticatedUser.id, state: BlogState.ACTIVE });
+    @MessagePattern("getBlog")
+    async getBlog(
+        data: { blogDto: UpdateBlogRequestDto; authenticatedUser: AuthenticatedUserDto },
+    ): Promise<GetBlogResponseDto> {
 
-    //     let response = new Array<GetBlogResponseDto>();
+        this.logger.debug('started getBlog()', BlogController.name);
+        const { blogDto, authenticatedUser } = data;
 
-    //     for (let i = 0; i < blogs.length; i++) {
-    //         let blog = new GetBlogResponseDto();
+        let blog = await this.blogService.findById(blogDto.id);
+        let response = new GetBlogResponseDto();
+        response.title = blog.title;
+        response.content = blog.content;
+        response.image = blog.image;
+        response.author = blog.id;
+        response.categories = blog.categories;
+        response.tags = blog.tags;
 
-    //         blog.title = blog.title;
-    //         blog.content = blog.content;
-    //         blog.image = blog.image;
-    //         blog.author = blog.id;
-    //     }
-    //     return response;
-    // }
+        return response;
+    }
 
-    // @UsePipes(new ValidationPipe())
-    // @Get("getAllBlog")
-    // async getAllBlog(): Promise<GetBlogResponseDto[]> {
+    @MessagePattern("getAllBlogByUserId")
+    async getAllBlogByUserId(
+        data: { authenticatedUser: AuthenticatedUserDto }
+    ): Promise<GetBlogResponseDto[]> {
 
-    //     this.logger.debug('started getAllBlog()', BlogController.name);
+        this.logger.debug('started getAllBlogByUserId()', BlogController.name);
+        const { authenticatedUser } = data;
+        let blogs = await this.blogService.find({ author: authenticatedUser.id, state: BlogState.ACTIVE });
 
-    //     let blogs = await this.blogService.find({ state: BlogState.ACTIVE });
-    //     let response = new Array<GetBlogResponseDto>();
+        let response = new Array<GetBlogResponseDto>();
 
-    //     for (let i = 0; i < blogs.length; i++) {
-    //         let blog = new GetBlogResponseDto();
+        for (let i = 0; i < blogs.length; i++) {
+            let blog = new GetBlogResponseDto();
+            blog.title = blogs[i].title;
+            blog.content = blogs[i].content;
+            blog.image = blogs[i].image;
+            blog.author = blogs[i].id;
+            blog.categories = blogs[i].categories;
+            blog.tags = blogs[i].tags;
 
-    //         blog.title = blog.title;
-    //         blog.content = blog.content;
-    //         blog.image = blog.image;
-    //         blog.author = blog.id;
-    //     }
-    //     return response;
-    // }
+            response.push(blog);
+        }
+        return response;
+    }
 
-    // @UsePipes(new ValidationPipe())
-    // @Post("deleteBlog")
-    // async deleteBlog(
-    //     @Body() request: GetBlogRequestDto,
-    //     @AuthenticatedUser() authenticatedUser: AuthenticatedUserDto
-    // ): Promise<any> {
+    @MessagePattern("getAllBlog")
+    async getAllBlog(): Promise<GetBlogResponseDto[]> {
 
-    //     this.logger.debug('started updateBlog()', BlogController.name);
-    //     let blog = await this.blogService.findById(request.id);
+        this.logger.debug('started getAllBlog()', BlogController.name);
 
-    //     if (blog.author != authenticatedUser.id) {
-    //         this.logger.error("You are not authorized.");
-    //         throw ApiException.buildFromApiError(ApiError.NOT_AUTHORIZED);
-    //     }
+        let blogs = await this.blogService.find({ state: BlogState.ACTIVE });
+        let response = new Array<GetBlogResponseDto>();
 
-    //     blog.state = BlogState.PASSIVE;
+        for (let i = 0; i < blogs.length; i++) {
+            let blog = new GetBlogResponseDto();
+            blog.title = blogs[i].title;
+            blog.content = blogs[i].content;
+            blog.image = blogs[i].image;
+            blog.author = blogs[i].id;
+            blog.categories = blogs[i].categories;
+            blog.tags = blogs[i].tags;
 
-    //     await this.blogService.update(blog);
-
-    // }
+            response.push(blog);
+        }
+        return response;
+    }
+ 
 
 }

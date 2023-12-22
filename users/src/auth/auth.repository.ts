@@ -1,11 +1,11 @@
 import { Model, Types } from 'mongoose';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from "@nestjs/mongoose"; 
+import { InjectModel } from "@nestjs/mongoose";
 import { Auth, AuthDocument } from './auth.model';
 import { AuthType } from './enums/auth.type';
-import { AuthState } from './enums/auth.state'; 
+import { AuthState } from './enums/auth.state';
 import { AuthenticatedUserAuthDto } from './dto/authenticated-user.auth.dto';
-import { Repository } from '../_common/repository/repository'; 
+import { Repository } from '../_common/repository/repository';
 
 @Injectable()
 export class AuthRepository extends Repository<Auth, AuthDocument>{
@@ -43,6 +43,7 @@ export class AuthRepository extends Repository<Auth, AuthDocument>{
             _id: id
         })
             .populate("user")
+            .lean()
             .exec();
     }
 
@@ -67,7 +68,7 @@ export class AuthRepository extends Repository<Auth, AuthDocument>{
             }).exec();
         }
     }
- 
+
 
     async getUsersLoginCounts(): Promise<Auth[]> {
         var auths = await this.mongoModel.aggregate([

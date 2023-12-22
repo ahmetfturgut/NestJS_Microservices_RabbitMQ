@@ -3,7 +3,7 @@ import { UserType } from "src/users/enum/usertype.enum";
 
 export class AuthenticatedUserDto {
 
-    public _id: string;
+    public id: string;
     public email: string;
     public type: UserType;
     public state: UserState;
@@ -13,7 +13,7 @@ export class AuthenticatedUserDto {
     public isSystemUser: boolean = false;
     static from(user: any): AuthenticatedUserDto {
         var authUser = new AuthenticatedUserDto();
-        authUser._id = user.id;
+        authUser.id = user.id;
         authUser.email = user.email;
         authUser.type = user.type;
         authUser.state = user.state;

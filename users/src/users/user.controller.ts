@@ -99,13 +99,12 @@ export class UserController {
   async validate(
     @Body() request: any
   ): Promise<any> {
-    //	console.log("payload: ", payload);
-    let authId = request.authId;
 
     let user = await this.authService.verifyToken(request.jwt);
     if (!user) {
       throw new UnauthorizedException();
     }
+    user.id = user["_id"];
     return user;
   }
 
