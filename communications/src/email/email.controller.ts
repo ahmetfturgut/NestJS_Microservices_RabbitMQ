@@ -26,4 +26,23 @@ export class EmailController {
 
   }
 
+
+  @MessagePattern("signInEmail")
+  async SignInEmail(
+    data: { emailDto: any; authenticatedUser: AuthenticatedUserDto },
+  ): Promise<any> {
+
+    const { emailDto, authenticatedUser } = data;
+
+    let email = new SignInEmail();
+    email.code = emailDto.verificationCode;
+    email.nameSurname = authenticatedUser.name + " " + authenticatedUser.surname;
+    email.to = authenticatedUser.email;
+    email.language = authenticatedUser.lang ? authenticatedUser.lang : Language.EN;
+
+    await this.emailService.sendMail(new EmailBuilder(email));
+
+  }
+
+
 }

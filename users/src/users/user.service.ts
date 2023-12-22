@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserRepository } from './user.repository'; 
+import { UserRepository } from './user.repository';
 import { User, UserDocument } from './user.model';
 import { Service } from 'src/_common/service/service';
 
@@ -11,6 +11,5 @@ export class UserService extends Service<User, UserDocument, UserRepository> {
   async getUserByEmail(email: User["email"]): Promise<User> {
     return this.repository.getUserByEmail(email);
   }
-
 
 }

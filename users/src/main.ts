@@ -3,6 +3,7 @@ import { MicroserviceOptions, Transport } from "@nestjs/microservices";
 import { AppModule } from "./app.module";
 import { Logger } from "@nestjs/common";
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston'; 
+import { appConfig } from "./core/environment/config";
 
 const logger = new Logger();
 
@@ -10,8 +11,8 @@ async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
     transport: Transport.RMQ,
     options: {
-      urls: ['amqp://localhost:5672'],
-      queue: 'users_queue',
+      urls: [appConfig.rabbitmqHost],
+      queue: appConfig.rabbitmqUsersQueue,
       queueOptions: {
         durable: false
       },

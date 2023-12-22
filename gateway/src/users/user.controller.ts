@@ -58,7 +58,6 @@ export class UserController {
 
     return await this.userService.signIn(signInDto);
   }
-
  
   @Public()
   @Post("verifySignIn")

@@ -98,7 +98,9 @@ export class AuthService extends Service<Auth, AuthDocument, AuthRepository> {
 		return auth.authendicatedUser;
 	}
 
-	async verifyToken(token: string, userId?: User["id"], options: any = { populateUser: true }): Promise<Auth> {
+
+
+	async verifyToken(token: string, userId?: User["id"], isAuthenticatedUser: boolean = false, options: any = { populateUser: true }): Promise<Auth> {
 		try {
 			let decoded: ITokenPayload = await this.jwtService.verifyAsync(token.toString()); //decode(token.toString());
 
@@ -124,6 +126,10 @@ export class AuthService extends Service<Auth, AuthDocument, AuthRepository> {
 			}
 
 			if (auth.state != AuthState.ACTIVE) {
+				throw ApiException.buildFromApiError(ApiError.TOKEN_EXPIRED);
+			}
+
+			if (isAuthenticatedUser && auth.type != AuthType.SIGNIN) {
 				throw ApiException.buildFromApiError(ApiError.TOKEN_EXPIRED);
 			}
 
@@ -197,7 +203,7 @@ export class AuthService extends Service<Auth, AuthDocument, AuthRepository> {
 
 	async verifySignUpToken(token: string, verificationCode: string,): Promise<Auth> {
 
-		let auth = await this.verifyToken(token, undefined, { populateUser: false });
+		let auth = await this.verifyToken(token, undefined, false, { populateUser: false });
 
 		if (auth.type != AuthType.VERIFY_SIGNUP) {
 			throw ApiException.buildFromApiError(ApiError.TOKEN_ERROR);

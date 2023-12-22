@@ -24,5 +24,10 @@ export class UserService {
         return this.clientUserService.send("signIn", messagePayload);
     }
 
+    async verifySignIn(verificationDto: VerifySignInAndUpRequestDto) {
+        const messagePayload = { verificationDto, };
+        return this.clientUserService.send("verifySignIn", messagePayload);
+    }
 
+    
 }

@@ -4,6 +4,10 @@ export class SignInResponseDto {
     token: string; 
 }
 
+export class SignUpResponseDto {
+    token: string;
+}
+
 
 export class VerifySignInResponseDto {
     accessToken: string; 
@@ -19,4 +23,4 @@ export class AuthendicatedUserInfoResponseDto {
     surname: User["surname"];    
     isSystemUSer?: boolean = false; 
 
-}
+} 

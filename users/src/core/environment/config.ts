@@ -17,39 +17,7 @@ export const tokenConfig = {
 	get jwtSacretKey(): string {
 		return process.env.JWT_SACRET_KEY;
 	},
-}
-
-export const fileConfig = {
-	get fileCloudName(): string {
-		return process.env.FILE_CLOUD_NAME;
-	},
-
-	get fileCloudApiKey(): string {
-		return process.env.FILE_CLOUD_API_KEY;
-	},
-
-	get fileCloudApiSecretKey(): string {
-		return process.env.FILE_CLOUD_API_SECRET_KEY;
-	},
-}
-
-export const mailConfig = {
-	get mailHost(): string {
-		return process.env.MAIL_HOST;
-	},
-	get mailPort(): number {
-		return Number(process.env.MAIL_PORT);
-	},
-	get mailUser(): string {
-		return process.env.MAIL_USER;
-	},
-	get mailPassword(): string {
-		return process.env.MAIL_PASSWORD;
-	},
-	get mailFrom(): string {
-		return process.env.MAIL_FROM;
-	},
-}
+}  
 
 export const expiresTimeConfig = {
 	get authExpiresIn(): number {
@@ -74,8 +42,12 @@ export const expiresTimeConfig = {
 }
 
 export const appConfig = {
-	get apiPort(): string {
-		return process.env.API_PORT;
+	get rabbitmqHost(): string {
+		return process.env.RABBITMQ_HOST;
+	},
+
+	get rabbitmqUsersQueue(): string {
+		return process.env.RABBITMQ_USERS_QUEUE;
 	},
 
 }
