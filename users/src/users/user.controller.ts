@@ -9,7 +9,6 @@ import { ContactEmailRequestDto, CreateUserRequestDto, SignInRequestDto, VerifyS
 import { UserState } from './enum/user.state';
 import { AuthendicatedUserInfoResponseDto, SignInResponseDto, SignUpResponseDto, VerifySignInResponseDto } from './dto/user.response.dto';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { AuthenticatedUserDto } from './dto/authenticated-user.dto';
 import { UserType } from './enum/usertype.enum';
 
 export class UserController {
@@ -23,7 +22,7 @@ export class UserController {
 
   @MessagePattern("createUser")
   async createUser(
-    data: { userDto: CreateUserRequestDto; authenticatedUser: AuthenticatedUserDto },
+    data: { userDto: CreateUserRequestDto },
   ): Promise<any> {
 
     this.logger.debug('started createUser() ', UserController.name);
@@ -66,11 +65,11 @@ export class UserController {
 
   @MessagePattern("verifySignUp")
   async verifySignUp(
-    data: { verificationDto: VerifySignInAndUpRequestDto; authenticatedUser: AuthenticatedUserDto },
+    data: { verificationDto: VerifySignInAndUpRequestDto },
   ): Promise<any> {
 
     this.logger.debug('started verifySignUp() ', UserController.name);
-    const { verificationDto, authenticatedUser } = data;
+    const { verificationDto } = data;
 
     let auth = await this.authService.verifySignUpToken(verificationDto.token, verificationDto.verificationCode);
     let user = await this.userService.findById(auth.userId)
@@ -83,12 +82,12 @@ export class UserController {
 
   @MessagePattern("signIn")
   async signIn(
-    data: { verificationDto: SignInRequestDto; authenticatedUser: AuthenticatedUserDto },
+    data: { verificationDto: SignInRequestDto },
   ): Promise<SignInResponseDto> {
 
     this.logger.debug('started signIn() ', UserController.name);
 
-    const { verificationDto, authenticatedUser } = data;
+    const { verificationDto } = data;
 
     let user = await this.userService.getUserByEmail(verificationDto.email);
     if (!user) {
@@ -135,7 +134,7 @@ export class UserController {
 
   @MessagePattern("verifySignIn")
   async verifySignIn(
-    data: { verificationDto: VerifySignInAndUpRequestDto; authenticatedUser: AuthenticatedUserDto },
+    data: { verificationDto: VerifySignInAndUpRequestDto },
   ): Promise<VerifySignInResponseDto> {
 
     this.logger.debug('started verifySignIn() ', UserController.name);
@@ -170,7 +169,7 @@ export class UserController {
     this.logger.debug('started contactEmail() ', UserController.name);
     const { emailDto } = data;
     const messagePayload = { emailDto: emailDto };
-     
+
     return this.clientCommunicationService.send("contactEmail", messagePayload);
   }
 
