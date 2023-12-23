@@ -1,8 +1,8 @@
 {
   "name": "gateway",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "https://github.com/ahmetfturgut/NestJS_Microservices_RabbitMQ/tree/main",
+  "author": "Ahmet Faruk Turgut",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
