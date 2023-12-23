@@ -1,6 +1,6 @@
- 
-import { MAIL_ENUMS } from "../enum/mail.enum"; 
+  
 import { Language } from "../enum/language.enum";
+import { MAIL_TEMPLATE_PATH } from "../enum/mail.enum";
 import { IEmailBase } from "../interface/email-base.abstract";
 
 
@@ -12,6 +12,6 @@ export class SignInEmail implements IEmailBase {
     code: string;
 
     getTemplate(): string {
-        return MAIL_ENUMS.MAIL_TEMPLATE_PATH.CODE_MAIL;
+        return MAIL_TEMPLATE_PATH.CODE_MAIL;
     }
 }

@@ -24,3 +24,5 @@ export class AuthendicatedUserInfoResponseDto {
     isSystemUSer?: boolean = false; 
 
 } 
+
+

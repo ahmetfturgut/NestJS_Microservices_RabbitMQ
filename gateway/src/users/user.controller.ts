@@ -1,9 +1,9 @@
 import { Controller, Post, Body, UsePipes, ValidationPipe, Inject, Logger } from '@nestjs/common';
 import { Public } from '../core/decorators/public.decorator';
-import { CreateUserRequestDto, SignInRequestDto, VerifySignInAndUpRequestDto } from './dto/create-user.dto';
-import { ApiTags } from '@nestjs/swagger';
+ import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'; 
+import { CreateUserRequestDto, VerifySignInAndUpRequestDto, SignInRequestDto, ContactEmailRequestDto } from './dto/users.request.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -76,5 +76,23 @@ export class UserController {
  
   }
 
+  @Public()
+  @Post("contactEmail")
+  async contactEmail(
+    @Body() request: ContactEmailRequestDto
+  ): Promise<any> {
 
+    this.logger.debug('started contactEmail() ', UserController.name);
+
+    let emailDto = new ContactEmailRequestDto()
+    emailDto.email = request.email;
+    emailDto.name = request.name;
+    emailDto.surname = request.surname;
+    emailDto.title = request.title;
+    emailDto.content = request.content;
+
+    this.logger.debug("contactEmail done.");
+    return await this.userService.contactEmail(emailDto);
+ 
+  }
 }

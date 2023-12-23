@@ -1,12 +1,11 @@
-import { Controller, Body, Inject, Logger, UnauthorizedException } from '@nestjs/common';
-import { ClientProxy, Ctx, MessagePattern, RmqContext } from "@nestjs/microservices";
+import { Inject, Logger } from '@nestjs/common';
+import { ClientProxy, MessagePattern } from "@nestjs/microservices";
 import { UserService } from './user.service';
-import { CreateUserRequestDto } from './dto/create-user.dto';
 import { ApiException } from 'src/_common/api/api.exeptions';
 import { ApiError } from 'src/_common/api/api.error';
 import { User } from './user.model';
 import { AuthService } from 'src/auth/auth.service';
-import { SignInRequestDto, VerifySignInAndUpRequestDto } from './dto/users.request.dto';
+import { ContactEmailRequestDto, CreateUserRequestDto, SignInRequestDto, VerifySignInAndUpRequestDto } from './dto/users.request.dto';
 import { UserState } from './enum/user.state';
 import { AuthendicatedUserInfoResponseDto, SignInResponseDto, SignUpResponseDto, VerifySignInResponseDto } from './dto/user.response.dto';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
@@ -33,7 +32,7 @@ export class UserController {
     if (await this.userService.exists({ email: userDto.email })) {
       throw ApiException.buildFromApiError(ApiError.USER_EMAIL_EXISTS);
     }
-    
+
     let newUser = new User();
     newUser.email = userDto.email;
     newUser.name = userDto.name;
@@ -162,5 +161,18 @@ export class UserController {
     this.logger.debug("verifySignIn done.");
     return response;
   }
+
+  @MessagePattern("contactEmail")
+  async contactEmail(
+    data: { emailDto: ContactEmailRequestDto },
+  ): Promise<any> {
+
+    this.logger.debug('started contactEmail() ', UserController.name);
+    const { emailDto } = data;
+    const messagePayload = { emailDto: emailDto };
+     
+    return this.clientCommunicationService.send("contactEmail", messagePayload);
+  }
+
 
 }

@@ -49,6 +49,10 @@ export const mailConfig = {
 	get mailFrom(): string {
 		return process.env.MAIL_FROM;
 	},
+	get adminEmail(): string {
+		return process.env.ADMIN_EMAIL;
+	},
+	
 }
 
 export const expiresTimeConfig = {

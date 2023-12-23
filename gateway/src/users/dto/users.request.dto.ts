@@ -1,53 +1,95 @@
+import { ApiProperty } from "@nestjs/swagger";
+import { IsEmail, IsNotEmpty, IsOptional, IsString, Matches, Max, Min } from "class-validator";
+import { RegexClass } from "src/core/tools/enums/validation.enum";
 
-import {   IsEmail, IsEnum ,IsString } from 'class-validator'; 
-import { UserType } from '../enum/usertype.enum'; 
-import { ApiProperty } from '@nestjs/swagger';
+export class CreateUserRequestDto {
+
+    @ApiProperty()
+    @IsEmail()
+    @IsNotEmpty()
+    email: string;
+
+    @ApiProperty()
+    @IsString()
+    @IsNotEmpty()
+    name: string;
+
+    @ApiProperty()
+    @IsString()
+    @IsNotEmpty()
+    surname: string;
+
+    @ApiProperty()
+    @IsString()
+    @Matches(RegexClass.PASSWORD, { message: "password error" })
+    password: string;
+
+}
+
+export class VerifySignInAndUpRequestDto {
+    @ApiProperty()
+    @IsString()
+    token: string;
+
+    @ApiProperty()
+    @IsString()
+    verificationCode: string;
+
+}
+
+export class UpdateUserRequestDto {
+
+    @ApiProperty()
+    @IsString()
+    @IsNotEmpty()
+    id: string
+
+    @ApiProperty()
+    @IsString()
+    @IsOptional()
+    name: string;
+
+    @ApiProperty()
+    @IsString()
+    @IsOptional()
+    surname: string;
 
 
-// export class ResendVerifyEmailRequestDto {
-//     @ApiProperty()
-//     @IsEmail()
-//     readonly email: User["email"];
+}
 
-//     @ApiProperty()
-//     @IsEnum(UserType)
-//     readonly userType: UserType;
-// }
+export class SignInRequestDto {
+    @ApiProperty()
+    @IsEmail()
+    email: string;
 
-// export class VerifyEmailRequestDto {
-//     @ApiProperty()
-//     @IsString()
-//     readonly token: string;
-// }
-
-// export class SignInRequestDto {
-//     @ApiProperty()
-//     @IsEmail()
-//     readonly email: User["email"];
-
-//     @ApiProperty()
-//     @IsString()
-//     readonly password: User["password"];
+    @ApiProperty()
+    @IsString()
+    password: string;
 
 
-// }
-// export class VerifySignInAndUpRequestDto {
-//     @ApiProperty()
-//     @IsString()
-//     token: string;
+}
 
-//     @ApiProperty()
-//     @IsString()
-//     verificationCode: string;
 
-// }
+export class ContactEmailRequestDto {
+    @ApiProperty()
+    @IsEmail()
+    email: string;
+    
+    @ApiProperty()
+    @IsString()
+    name: string;
 
-// export class ForgetPasswordRequestDto {
-//     @ApiProperty()
-//     @IsEmail()
-//     readonly email: User["email"];
+    @ApiProperty()
+    @IsString()
+    surname: string; 
 
-//     @ApiProperty()
-//     @IsEnum(UserType)
-//     readonly userType: UserType;
-// }
+    @ApiProperty()
+    @IsString()
+    title: string;
+    
+    @ApiProperty()
+    @IsString()
+    content: string;
+
+}
+

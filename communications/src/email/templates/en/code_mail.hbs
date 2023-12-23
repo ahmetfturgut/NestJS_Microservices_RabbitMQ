@@ -1,7 +1,63 @@
+<!DOCTYPE html>
+<html>
 
-<p>Hey {{ nameSurname }},</p>
-<p>E-mail code generated for login is</p>
-<p>
-    <b>Verification Code:</b> {{ code }}
-</p>
- 
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333333;
+            padding: 20px;
+        }
+
+        .email-container {
+            background-color: #ffffff;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .email-header {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            text-align: center;
+        }
+
+        .email-content {
+            margin-top: 20px;
+        }
+
+        .verification-code {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .email-footer {
+            margin-top: 40px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <h2>Login Verification</h2>
+        </div>
+        <div class="email-content">
+            <p>Hey {{ nameSurname }},</p>
+            <p>The verification code generated for your login is:</p>
+            <p class="verification-code">
+                Verification Code: {{ code }}
+            </p>
+            <p>Thank you!</p>
+        </div>
+    </div>
+</body>
+
+</html>
