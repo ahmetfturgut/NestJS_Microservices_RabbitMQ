@@ -1,16 +1,16 @@
 
-
-
 import { CanActivate, ExecutionContext, Inject, Logger } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { ClientProxy } from "@nestjs/microservices";
 import { timeout } from "rxjs";
 import { IS_PUBLIC_KEY } from "../decorators/public.decorator";
+import { AuthService } from "src/auth/auth.service";
 
 export class JwtAuthGuard implements CanActivate {
     constructor(
         private reflector: Reflector,
-        @Inject('USER_SERVICE') private readonly client: ClientProxy
+        @Inject('USER_SERVICE') private readonly client: ClientProxy,
+        private readonly authManager: AuthService
     ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -27,10 +27,24 @@ export class JwtAuthGuard implements CanActivate {
         const req = context.switchToHttp().getRequest();
 
         try {
-            const res = await this.client.send("checkToken",
-                { jwt: req.headers['authorization']?.split(' ')[1] })
-                .pipe(timeout(5000))
-                .toPromise();
+            let token = req.headers['authorization']?.split(' ')[1];
+            let userString = await this.authManager.getCache("auth:" + token)
+            let res: any;
+            if (userString) {
+                let user = JSON.parse(userString);
+                if (!this.authManager.isTokenExpired(user.timestamp)) { 
+                    res = user;
+                } else {
+                    await this.authManager.deleteCache("auth:" + token)
+                    return false;
+                }
+            } else {
+
+                res = await this.client.send("checkToken",
+                    { jwt: token })
+                    .pipe(timeout(5000))
+                    .toPromise();
+            }
 
             req.user = res;
             return true;

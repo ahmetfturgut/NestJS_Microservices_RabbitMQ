@@ -42,8 +42,7 @@ export class AuthRepository extends Repository<Auth, AuthDocument>{
         return await this.mongoModel.findOne({
             _id: id
         })
-            .populate("user")
-            .lean()
+            .populate("user") 
             .exec();
     }
 

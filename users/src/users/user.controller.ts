@@ -76,8 +76,8 @@ export class UserController {
     user.state = UserState.ACTIVE;
 
     this.logger.debug("verifySignUp done.");
-    await this.userService.update(user);
-    return;
+    return await this.userService.update(user);
+    
   }
 
   @MessagePattern("signIn")

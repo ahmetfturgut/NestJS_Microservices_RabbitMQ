@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateBlogRequestDto, DeleteBlogRequestDto } from './dto/blog.request.dto';
-import { CreateBlogResponseDto, GetBlogResponseDto, UpdateBlogResponseDto } from './dto/blog.response.dto';
-import { AuthenticatedUserDto } from 'src/auth/authenticated-user.dto';
+import { CreateBlogResponseDto, GetBlogResponseDto, UpdateBlogResponseDto } from './dto/blog.response.dto'; 
+import { AuthenticatedUserDto } from 'src/auth/dto/authenticated-user.dto';
 
 @Injectable()
 export class BlogService {

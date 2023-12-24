@@ -11,9 +11,7 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
   const httpAdapter = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter)); 
-  app.useGlobalPipes(new ValidationPipe());
-  const clientProxy = app.get('USER_SERVICE');
-  app.useGlobalGuards(new JwtAuthGuard(new Reflector(),clientProxy));
+  app.useGlobalPipes(new ValidationPipe()); 
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   await app.listen(3000);
 }

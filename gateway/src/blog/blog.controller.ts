@@ -1,13 +1,12 @@
-import { Controller, Get, Post, Body, UsePipes, Inject, ValidationPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Inject } from '@nestjs/common';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateBlogRequestDto, DeleteBlogRequestDto, GetBlogRequestDto, UpdateBlogRequestDto } from './dto/blog.request.dto';
 import { BlogService } from './blog.service';
-import { JwtAuthGuard } from 'src/core/guards/auth-guard';
 import { AuthenticatedUser } from 'src/core/decorators/authenticated-user.decorator';
-import { AuthenticatedUserDto } from 'src/auth/authenticated-user.dto';
 import { CreateBlogResponseDto, GetBlogResponseDto, UpdateBlogResponseDto } from './dto/blog.response.dto';
+import { AuthenticatedUserDto } from 'src/auth/dto/authenticated-user.dto';
 
 @Controller('blogs')
 @ApiTags('blogs')

@@ -1,4 +1,5 @@
 import { Type } from '@nestjs/common';
+const mongooseLeanVirtuals= require ('mongoose-lean-virtuals'); 
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";  
 @Schema()
 export class HasId {
@@ -26,9 +27,14 @@ export class BaseModel extends HasId {
     audit: AuditModel;
 }
 
-export function createSchema<TClass extends any = any>(target: Type<TClass>){
-    let schema = SchemaFactory.createForClass(target); 
-  
+export function createSchema<TClass extends any = any>(target: Type<TClass>) {
+    let schema = SchemaFactory.createForClass(target);
+
+    schema.plugin(mongooseLeanVirtuals);
+    schema.virtual('id').get(function () {
+        return this._id.toString();
+    });
+
     return schema;
 }
 
