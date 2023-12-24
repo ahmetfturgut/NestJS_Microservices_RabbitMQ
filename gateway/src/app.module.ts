@@ -4,11 +4,12 @@ import { AppService } from './app.service';
 import { ClientProxy, ClientsModule, Transport } from "@nestjs/microservices";
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './users/user.module';
-import { APP_GUARD, APP_PIPE, Reflector } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE, Reflector } from '@nestjs/core';
 import { JwtAuthGuard } from './core/guards/auth-guard';
 import { LoggerWinstonModule } from './core/module/winston.module';
 import { BlogModule } from './blog/blog.module';
 import { AuthService } from './auth/auth.service';
+import { TransformInterceptor } from './core/interceptors/transform.interceptor';
 
 @Module({
   imports: [
@@ -50,6 +51,10 @@ import { AuthService } from './auth/auth.service';
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor
     },
     {
       provide: APP_GUARD,
