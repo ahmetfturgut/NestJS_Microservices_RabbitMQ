@@ -77,8 +77,19 @@ export class UserController {
 
     this.logger.debug("verifySignUp done.");
     return await this.userService.update(user);
-    
+
   }
+
+  @MessagePattern("signOut")
+  async signOut(
+    data: { userId: string },
+  ): Promise<any> {
+
+    this.logger.debug('started signOut() ', UserController.name);
+    const { userId } = data;
+    return await this.authService.signOut(userId);
+
+  } 
 
   @MessagePattern("signIn")
   async signIn(
@@ -172,6 +183,8 @@ export class UserController {
 
     return this.clientCommunicationService.send("contactEmail", messagePayload);
   }
+
+
 
 
 }
